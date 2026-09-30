@@ -1,3 +1,28 @@
+// Read-only daily counter; the actor flag remains the only source of truth.
+function showCounter(app, html) {
+  const actor = app.actor;
+  if (!actor?.isOfType("character")) return;
+  const root = html?.querySelector ? html : html?.[0];
+  const tab = root?.querySelector('[data-tab="actions"][data-group="primary"]');
+  if (!tab) return;
+  let counter = tab.querySelector('[data-fated-attack-counter]');
+  if (!counter) {
+    counter = document.createElement("p");
+    counter.dataset.fatedAttackCounter = "";
+    counter.setAttribute("role", "status");
+    counter.style.cssText = "padding:6px 8px;border:1px solid var(--color-border-light-primary, #999);border-radius:4px;";
+    tab.prepend(counter);
+  }
+  const spent = !!actor.getFlag("world", "fatedAttackSpent");
+  counter.textContent = `Fated Attack: ${spent ? "0/1 - Used today" : "1/1 - Available"}`;
+  counter.title = "Daily use only; activation also costs 1 Mythic Point. Right-click an attack roll to activate. Rest for the Night restores this use.";
+}
+Hooks.on("renderActorSheet", showCounter);
+// Refresh an already-open counter even if another integration suppresses a full render.
+Hooks.on("updateActor", actor => {
+  for (const app of Object.values(actor.apps ?? {})) showCounter(app, app.element);
+});
+
 Hooks.once("ready", () => {
 // Run once per browser session. PF2e 8.5.1 / Foundry 14.
 if (globalThis.fatedAttackMenuInstalled) {

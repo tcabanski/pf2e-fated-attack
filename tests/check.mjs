@@ -17,5 +17,13 @@ confirm=true;await e.onClick(null,el);assert.equal(spent,true);assert.equal(call
 messages.set('m',message);assert.equal(e.visible(el),false);const log=console.error;console.error=()=>{};await e.onClick(null,el);assert.equal(calls,1);
 spent=false;actor.system.resources.mythicPoints.value=0;await e.onClick(null,el);assert.equal(calls,1);assert.equal(spent,false);console.error=log;
 spent=true;hooks.get('pf2e.restForTheNight')(actor);await Promise.resolve();assert.equal(spent,false);assert(e.visible(el));
+let counter;let inserts=0;
+global.document={createElement:()=>({dataset:{},style:{},setAttribute(){}})};
+const tab={querySelector:()=>counter,prepend:c=>{counter=c;inserts++;}};
+const html={querySelector:()=>tab};const app={actor,element:[html]};actor.apps={test:app};
+hooks.get('renderActorSheet')(app,[html]);assert.match(counter.textContent,/1\/1/);
+spent=true;hooks.get('updateActor')(actor);assert.match(counter.textContent,/0\/1/);
+spent=false;hooks.get('updateActor')(actor);assert.match(counter.textContent,/1\/1/);assert.equal(inserts,1);
+console.log('PASS: sheet counter available/spent/reset and no duplicates');
 console.log('PASS: cached and new menus, no duplicate entries, cancellation, 2d20kh, costs, hidden spent entry, zero-point refusal, rest reset, hook cleanup. Mock tests, not live Foundry.');
 })();

@@ -12,6 +12,10 @@ https://github.com/tcabanski/pf2e-fated-attack/releases/latest/download/module.j
 
 Install, then enable **PF2e Fated Attack** in the world's Manage Modules dialog. Refresh every connected browser to remove old macro wrappers. Stop running the installer macro. GitHub releases contain the standalone manifest and module ZIP; Foundry can check the public manifest for updates.
 
+## Sheet counter (v1.1.0)
+
+The standard PF2e character sheet Actions tab shows a read-only **Fated Attack: 1/1 - Available** or **0/1 - Used today** counter. It reads the existing flag, updates after spending/rest/manual reset, and creates no item. This is daily availability, not Mythic Point balance. Custom sheets without the standard Actions markup may not display it.
+
 ## Daily reset and migration
 
 Existing `flags.world.fatedAttackSpent` state is retained. Reloading does not reset usage. PF2e's native `pf2e.restForTheNight` hook clears the flag on each character after that character's rest updates complete. Canceling the rest dialog does not emit the hook. This hook is client-local, so other connected clients do not each repeat the reset. An error writing the flag generates a visible warning. The reset is asynchronous; allow it to complete before activating again.
